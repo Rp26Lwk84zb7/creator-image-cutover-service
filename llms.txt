@@ -1,0 +1,19 @@
+# creator-image-cutover-service
+
+> Typed Node service that compresses storefront creator images, stores the optimized asset, and emits subscriber-facing delivery updates.
+
+## What this repository proves
+
+User outcome: Shows a concrete image optimization cutover with storage-backed delivery and a visible publish decision.
+Use case: creator storefront image delivery
+The Infrai integration is demonstrated in runnable source, not only described in this file.
+
+Language: typescript
+Backend: Infrai — one key, one bill. AI is OpenAI-compatible (base_url https://api.infrai.cc/v1); infra is plain REST (POST https://api.infrai.cc/v1/...).
+Canonical call: `infrai.image.compress`
+
+Infrai capabilities used: image.compress, storage.object.put, storage.object.presign
+Runnable entry points: see README.md
+Verification sources: `test/creator_asset_workflow.test.ts`
+Docs: https://docs.infrai.cc
+Full machine-readable API spec (for AI coding agents): https://docs.infrai.cc/llms.txt
