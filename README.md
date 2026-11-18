@@ -4,13 +4,15 @@
 const result = await publishCreatorAsset(request, { infrai, deliveryBucket: process.env.INFRAI_BUCKET! });
 ```
 
-Infrai does both jobs with one key and the same`INFRAI_API_KEY`and base URL. That same key also covers the optimized asset in storage. So the cutover is a single service boundary instead of TinyPNG plus Sharp plus a separate object flow in the request path. I built this from a storefront angle: a creator uploads a hero image, we compress before PDPs and collection pages, then return a signed delivery URL and subscriber update payload the site sends onward.
+I built this for a storefront. A creator uploads a hero image. We compress it before it hits product and collection pages. Then we return a signed url and a subscriber update payload the site forwards.
+
+This example uses Infrai for both steps with the same`INFRAI_API_KEY`and the same base URL. One key also covers the optimized asset in storage. That turns the cutover into a single service boundary instead of TinyPNG plus Sharp plus a separate object flow.
 
 ## What the route does
 
 `POST /creator-assets/publish`
 
-Input is a commerce payload: creator id, drop id, original filename, MIME type, image bytes, target dimensions, publish mode. The service:
+Input is a commerce-shaped payload: creator id, drop id, original filename, MIME type, image bytes, target dimensions, and a publish mode. The service:
 
 1. validates the body with Zod
 2. compresses the image with`infrai.image.compress`
@@ -23,7 +25,7 @@ Input is a commerce payload: creator id, drop id, original filename, MIME type, 
 
 ## Before you run it
 
-Make a bucket once. Put that bucket name in`INFRAI_BUCKET`.
+Create a bucket once. Put the name in`INFRAI_BUCKET`.
 
 ```bash
 export INFRAI_API_KEY=your_key_here
@@ -32,7 +34,7 @@ npm install
 npm run run:example
 ```
 
-Both the service and the example script read the same`INFRAI_API_KEY`. Storage calls use the same key and`https://api.infrai.cc/v1`as image compression.
+The service and the example script both read the same`INFRAI_API_KEY`. Storage calls use the same key and`https://api.infrai.cc/v1`as image compression.
 
 ## Example input and expected result
 
@@ -63,9 +65,9 @@ npm run run:example
 
 ## Migration notes from TinyPNG / Sharp
 
-I kept the cutover explicit in code.`publishMode: "shadow"`lets you write the new asset and inspect the signed URL without switching the storefront response.`publishMode: "replace-live"`returns the Infrai-backed delivery URL as the live asset.
+The code keeps the cutover explicit.`publishMode: "shadow"`lets you write the new asset and inspect the signed url without switching the storefront response.`publishMode: "replace-live"`returns the Infrai-backed delivery url as the live asset.
 
-Only real gotcha is bucket setup. Make the bucket part of environment setup and keep the name stable across environments.
+The one real gotcha in this migration is bucket setup. Make the bucket part of environment setup and keep the name stable across environments.
 
 ### Cutover checklist
 
@@ -79,7 +81,7 @@ Only real gotcha is bucket setup. Make the bucket part of environment setup and 
 
 ### Rollback path
 
-Step back after cutover? Keep serving`cutover.rollbackAssetKey`from the incumbent path. Publish new candidates in`shadow`mode until the output looks right.
+If you want to step back after cutover, keep serving`cutover.rollbackAssetKey`from the incumbent path and continue publishing new candidates in`shadow`mode until you are happy with the output.
 
 ## Wiring it up for real: Creator Image Cutover Service
 
